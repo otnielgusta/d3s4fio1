@@ -1,6 +1,7 @@
 
 
 class EnderecoModel():
+    pass
     id:int
     pais:str
     estado:str
@@ -11,7 +12,7 @@ class EnderecoModel():
     complemento:str
 
     def fromBd(self, data):
-        self.id = data['id']
+        self.id = data['idEndereco']
         self.pais = data['pais']
         self.estado = data['estado']
         self.municipio = data['municipio']
@@ -21,8 +22,7 @@ class EnderecoModel():
         self.complemento = data['complemento']
 
     def toJson(self):
-        return [{
-            
+        return {            
                 'pais': self.pais,
                 'estado':self.estado,
                 'municipio':self.municipio,
@@ -30,4 +30,4 @@ class EnderecoModel():
                 'rua':self.rua,
                 'numero': self.numero,
                 'complemento':self.complemento            
-        }]
+        }
