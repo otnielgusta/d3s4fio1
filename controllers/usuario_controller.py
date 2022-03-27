@@ -85,13 +85,17 @@ class UsuarioController(Resource):
         if not tokenRequest:
             print("sem token")
             return jsonify({"error": "Sem permissão para acessar"}), 403  
-        
+
         response = self.auth.verifyAndDecodToken(token=tokenRequest)
 
-        if response == "ok":         
-            pass
+        if response['status'] == "200":
+            id = response['id']                      
+            return self.getCurrentuser(id)
 
-    def getCurrentuser(id):
+        return jsonify(response['error']), int(response['status'])
+        
+    def getCurrentuser(self,id):
+        print("O id é: ", id)
         cursor = mydb.cursor(dictionary=True)        
         query = ("select * from usuario where id = %s")
         cursor.execute(query % (id))
