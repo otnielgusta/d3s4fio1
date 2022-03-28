@@ -47,36 +47,40 @@ class UsuarioController(Resource):
             return jsonify(str(e))
 
     def login(self):
+        user = UsuarioLoginModel()
+        print(request)
+        user.getRequestData(request=request)               
+        cursor = mydb.cursor(dictionary=True)        
         try:                      
-            user = UsuarioLoginModel()
-            user.getRequestData(request=request)               
-            cursor = mydb.cursor(dictionary=True)        
             query = ("select id, cpf, senha from usuario where %s = '%s'")
             parametros = (user.tipo, user.login)  
             cursor.execute(query % parametros )
             result = cursor.fetchone()
-            print(result)
 
-            if result is not None:
+            if result is not None:               
                 if not self.verifyPassword(user.senha, result['senha']):
                     return jsonify({ "error": "Suas credenciais estão incorretas"}), 403     
-                user.id = result['id']                            
+                
+                user.id = result['id']    
+                                   
             else:
                 return jsonify({"error":"Usuário não encontrado"}), 403
-            
             payload = {
                 "id":user.id,
                 "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")))
             }
 
             token = jwt.encode(payload, os.getenv('SECRET_KEY'))
-            return jsonify({"token": token})
+            cursor.close()
 
+            return jsonify({"token": token})
         except Exception as error:
-            return jsonify(str(error)), 404
+            cursor.close()
+
+            return jsonify(str("A exception é: ",error)), 404
         finally:
             cursor.close()
-    
+
     def getUser(self):
         tokenRequest = None
         if 'authorization' in request.headers:
@@ -101,5 +105,7 @@ class UsuarioController(Resource):
         cursor.execute(query % (id))
         result = cursor.fetchone()
         return jsonify(result)
+    
+     
 
 usuarioController = UsuarioController()
