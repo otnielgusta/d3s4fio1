@@ -48,9 +48,8 @@ class UsuarioController(Resource):
 
     def login(self):
         user = UsuarioLoginModel()
-        print(request)
-        user.getRequestData(request=request)               
-        cursor = mydb.cursor(dictionary=True)        
+        user.getRequestData(data=request.data)               
+        cursor = mydb.cursor(dictionary=True)    
         try:                      
             query = ("select id, cpf, senha from usuario where %s = '%s'")
             parametros = (user.tipo, user.login)  
@@ -71,11 +70,9 @@ class UsuarioController(Resource):
             }
 
             token = jwt.encode(payload, os.getenv('SECRET_KEY'))
-            cursor.close()
 
             return jsonify({"token": token})
         except Exception as error:
-            cursor.close()
 
             return jsonify(str("A exception é: ",error)), 404
         finally:

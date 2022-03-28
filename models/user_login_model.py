@@ -1,3 +1,8 @@
+from base64 import decode
+from flask import request
+import json
+
+
 class UsuarioLoginModel():
     pass
     id:int
@@ -11,17 +16,18 @@ class UsuarioLoginModel():
         self.tipo = data['tipo']
         self.senha = data['senha']
     
-    def getRequestData(self, request):
-        if 'email' in request.json:  
+    def getRequestData(self, data):
+        request = json.loads(data)
+        if 'email' in request:  
             self.tipo = 'email'
-            self.login = request.json['email']
+            self.login = str(request['email'])
 
-        elif 'cpf' in request.json:
+        elif 'cpf' in request:
             self.tipo = 'cpf'
-            self.login = request.json['cpf']
+            self.login = str(request['cpf'])
 
-        elif 'pis' in request.json:
+        elif 'pis' in request:
             self.tipo= 'pis'            
-            self.login = request.json['pis']
+            self.login = str(request['pis'])
 
-        self.senha = request.json['senha']      
+        self.senha = str(request['senha'])      
