@@ -1,7 +1,9 @@
+import json
+from lib2to3.pgen2 import token
 import os
-from ctypes import sizeof
 from flask import jsonify, request
 from flask_restx import Resource
+from controllers.endereco_controller import EnderecoController
 from models.user_login_model import UsuarioLoginModel
 from models.usuario_model import UsuarioModel
 from server.server import server
@@ -22,33 +24,45 @@ class UsuarioController(Resource):
     auth = Authenticate()
 
     def getSenhaCriptografada(self,password):
+        print(password)
         return self.cryptContext.hash(password)
 
     def verifyPassword(self,passwordFromFront, passwordFromDb):
         return self.cryptContext.verify(passwordFromFront, passwordFromDb)
 
     def register(self):
+        cursor = mydb.cursor()
         try:
-            nome = request.json['nome']
-            email = request.json['email']
-            idEndereco = request.json['idEndereco']
-            cpf = request.json['cpf']
-            pis = request.json['pis']
-            senha = self.getSenhaCriptografada(request.json['senha'])
-
-            cursor = mydb.cursor()
-            query = "INSERT INTO USUARIO(nome, email, idEndereco, cpf, pis, senha) values('%s','%s',%s,'%s',%s,'%s')"
-            parametros = (nome, email, idEndereco, cpf, pis, senha)
-            cursor.execute(query %parametros)
-            mydb.commit()
-            return jsonify({"status": 200})
+            user = UsuarioModel()
+            enderecoController = EnderecoController()
+            data = json.loads(request.data)
+            user.fromJson(data=data)
+            senha = self.getSenhaCriptografada(data['senha'])
+            user.senha = senha
+            
+            lastId =  enderecoController.insert(user.endereco)
+            if lastId != "":
+                print(lastId)
+                query = "INSERT INTO USUARIO(nome, email, idEndereco, cpf, pis, senha) values('%s','%s',%s,'%s',%s,'%s')"
+                parametros = (user.nome, user.email, lastId['last_insert_id()'], user.cpf, user.pis, user.senha)
+                cursor.execute(query %parametros)
+                print("entrou exerc")
+                mydb.commit()
+                return jsonify({"status": 200}), 200
+            else:
+                return Exception
         
         except Exception as e:
+            print(e)
             return jsonify(str(e))
+
+        finally:
+            cursor.close()
 
     def login(self):
         user = UsuarioLoginModel()
-        user.getRequestData(data=request.data)               
+        user.getRequestData(data=request.data)     
+
         cursor = mydb.cursor(dictionary=True)    
         try:                      
             query = ("select id, cpf, senha from usuario where %s = '%s'")
@@ -56,9 +70,9 @@ class UsuarioController(Resource):
             cursor.execute(query % parametros )
             result = cursor.fetchone()
 
-            if result is not None:               
+            if result is not None: 
                 if not self.verifyPassword(user.senha, result['senha']):
-                    return jsonify({ "error": "Suas credenciais estão incorretas"}), 403     
+                    return jsonify({ "error": "Suas credenciais estão incorretas"}), 401     
                 
                 user.id = result['id']    
                                    
@@ -69,14 +83,34 @@ class UsuarioController(Resource):
                 "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")))
             }
 
-            token = jwt.encode(payload, os.getenv('SECRET_KEY'))
+            userResponse = self.getCurrentuser(user.id)
+            
 
-            return jsonify({"token": token})
+            token = jwt.encode(payload, os.getenv('SECRET_KEY'))
+            response = jsonify({
+                "token": token,
+                "user": userResponse
+            })
+            response.headers.add('Access-Control-Allow-Origin', '*')
+
+            return response
         except Exception as error:
 
             return jsonify(str("A exception é: ",error)), 404
         finally:
             cursor.close()
+
+    def getAutheticate(self):
+        tokenRequest = None
+        if 'authorization' in request.headers:
+            tokenRequest = request.headers['authorization']
+        
+        if not tokenRequest:
+                return jsonify({"error": "Sem permissão para acessar"}), 403  
+        
+        response = self.auth.verifyToken(token=tokenRequest)
+
+        return response
 
     def getUser(self):
         tokenRequest = None
@@ -84,7 +118,6 @@ class UsuarioController(Resource):
             tokenRequest = request.headers['authorization']
           
         if not tokenRequest:
-            print("sem token")
             return jsonify({"error": "Sem permissão para acessar"}), 403  
 
         response = self.auth.verifyAndDecodToken(token=tokenRequest)
@@ -96,12 +129,13 @@ class UsuarioController(Resource):
         return jsonify(response['error']), int(response['status'])
         
     def getCurrentuser(self,id):
-        print("O id é: ", id)
+        user = UsuarioModel()
         cursor = mydb.cursor(dictionary=True)        
-        query = ("select * from usuario where id = %s")
+        query = ("select u.id as id, nome, email, cpf, pis, e.id as idEndereco, pais, estado, municipio, cep, rua, numero, complemento from usuario as u inner join endereco as e on u.idEndereco = e.id where u.id = %s")
         cursor.execute(query % (id))
         result = cursor.fetchone()
-        return jsonify(result)
+        user.fromBd(result)
+        return user.toJson()
     
      
 

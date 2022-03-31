@@ -1,8 +1,4 @@
-from base64 import decode
-from flask import request
 import json
-
-
 class UsuarioLoginModel():
     pass
     id:int
@@ -17,6 +13,7 @@ class UsuarioLoginModel():
         self.senha = data['senha']
     
     def getRequestData(self, data):
+
         request = json.loads(data)
         if 'email' in request:  
             self.tipo = 'email'

@@ -18,3 +18,15 @@ class Authenticate:
             "status":"200",
             "id": tokenDecoded['id']
         }
+    
+    def verifyToken(self,token) -> dict:
+        try:
+            tokenDecoded = jwt.decode(token, os.getenv("SECRET_KEY"), algorithms=os.getenv("ALGORITHM"))
+            print(tokenDecoded)
+            return jsonify({"message":"ok"}),200
+        except jwt.exceptions.ExpiredSignatureError:
+            return jsonify({"error":"Token expirado"}), 403
+        except:
+            return jsonify({"error":"Acesso negado"}), 401
+        
+       

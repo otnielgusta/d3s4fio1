@@ -1,5 +1,9 @@
 
 
+import json
+import uuid
+
+
 class EnderecoModel():
     pass
     id:int
@@ -13,6 +17,15 @@ class EnderecoModel():
 
     def fromBd(self, data):
         self.id = data['idEndereco']
+        self.pais = data['pais']
+        self.estado = data['estado']
+        self.municipio = data['municipio']
+        self.cep = data['cep']
+        self.rua = data['rua']
+        self.numero = data['numero']
+        self.complemento = data['complemento']
+
+    def fromJson(self, data):
         self.pais = data['pais']
         self.estado = data['estado']
         self.municipio = data['municipio']

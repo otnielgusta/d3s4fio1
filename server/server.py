@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_restx import Api
 from mysql.connector import connection
+from flask_cors import CORS
+
 
 class Server():
 
@@ -12,6 +14,12 @@ class Server():
     )
 
     app = Flask(__name__)
+    CORS(app)
+    cors = CORS(app, resources={
+        r"/*":{
+            "origins": "*"
+        }
+    })
     api = Api(app)
 
 server = Server()

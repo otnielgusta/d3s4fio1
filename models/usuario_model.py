@@ -1,3 +1,5 @@
+import json
+import uuid
 from models.endereco_model import EnderecoModel
 
 
@@ -11,14 +13,25 @@ class UsuarioModel():
     pis:str
     senha:str
 
-    def fromBd(self, data):
+    def __init__(self) -> None:
+        pass
         self.endereco = EnderecoModel()
+
+
+    def fromBd(self, data):
         self.id = data['id']
         self.nome = data['nome']
         self.email = data['email']
         self.endereco.fromBd(data)
         self.cpf = data['cpf']
         self.pis = data['pis']
+
+    def fromJson(self, data):        
+        self.nome = data['nome']
+        self.email = data['email']
+        self.cpf = data['cpf']
+        self.pis = data['pis']
+        self.endereco.fromJson(data)
 
     def toJson(self):
         return {
