@@ -1,6 +1,7 @@
 from flask_restx import Resource
 from models.endereco_model import EnderecoModel
 from flask import jsonify
+from models.usuario_model import UsuarioModel
 
 
 from server.server import server
@@ -21,6 +22,19 @@ class EnderecoController(Resource):
             return "Ocorreu um erro"
         finally:
             conn.close()
+
+    def update(self, user:UsuarioModel, idEndereco):
+        try:
+            cursor = mydb.cursor()
+            query = "UPDATE endereco SET pais = '%s', estado = '%s', municipio = '%s', cep = '%s', rua = '%s', numero = '%s', complemento = '%s' where id = '%s'"
+            parametros = (user.endereco.pais, user.endereco.estado, user.endereco.municipio, user.endereco.cep, user.endereco.rua, user.endereco.numero, user.endereco.complemento, idEndereco)
+            cursor.execute(query % parametros)
+            mydb.commit()    
+            return 200
+        except Exception as e:
+            return {"error":str(e)}, 401
+        finally:
+            cursor.close()
 
     def insert(self, endereco:EnderecoModel):
         cursor = mydb.cursor(dictionary=True)

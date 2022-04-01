@@ -19,14 +19,14 @@ class UsuarioModel():
 
 
     def fromBd(self, data):
-        self.id = data['id']
         self.nome = data['nome']
         self.email = data['email']
         self.endereco.fromBd(data)
         self.cpf = data['cpf']
         self.pis = data['pis']
 
-    def fromJson(self, data):        
+    def fromJson(self, data):     
+
         self.nome = data['nome']
         self.email = data['email']
         self.cpf = data['cpf']
