@@ -4,8 +4,10 @@ from lib2to3.pgen2 import token
 import os
 from unittest import result
 from urllib import response
+import MySQLdb
 from flask import Response, jsonify, request
 from flask_restx import Resource
+from mysqlx import InternalError
 from controllers.endereco_controller import EnderecoController
 from models.user_login_model import UsuarioLoginModel
 from models.usuario_model import UsuarioModel
@@ -261,6 +263,12 @@ class UsuarioController(Resource):
                 "key":"email",
                 "value": result
                 }
+        except InternalError as e:
+            return {
+                "key": "no",
+                "value": e
+            }
+
         except Exception as e:
             return {
                 "key": "no",
@@ -270,7 +278,7 @@ class UsuarioController(Resource):
             cursor.close()
 
     def getAlreadyPis(self, pis):
-        cursor = mydb.cursor(dictionary=True)   
+        cursor = mydb.cursor(dictionary=True, buffered=True)   
 
         try:
             query = ("select pis from usuario where pis = '%s'")
@@ -281,6 +289,11 @@ class UsuarioController(Resource):
                 "key":"pis",
                 "value": result
                 }
+        except InternalError as e:
+            return {
+                "key": "no",
+                "value": e
+            }
         except Exception as e:
             return {
                 "key": "no",
@@ -290,7 +303,7 @@ class UsuarioController(Resource):
             cursor.close()
 
     def getUserAlreadyCpf(self, cpf):
-        cursor = mydb.cursor(dictionary=True)   
+        cursor = mydb.cursor(dictionary=True, buffered=True)   
 
         try:
             query = ("select cpf from usuario where cpf = '%s'")
@@ -301,6 +314,12 @@ class UsuarioController(Resource):
                 "key":"cpf",
                 "value": result
                 }
+        except InternalError as e:
+            print(e.msg)
+            return {
+                "key": "no",
+                "value": e
+            }
         except Exception as e:
             return {
                 "key": "no",
@@ -324,7 +343,9 @@ class UsuarioController(Resource):
             print(alreadyPis)
 
             if alreadyEmail['key']:
+
                 if alreadyEmail['key'] == 'email':
+                    print("entrou email")
                     if alreadyEmail['value'] is not None:
                         return jsonify({
                             "status": "yes",
@@ -333,6 +354,7 @@ class UsuarioController(Resource):
             
             if alreadyCpf['key']:
                 if alreadyCpf['key'] == 'cpf':
+                    print("entrou cpf") 
                     if alreadyCpf['value'] is not None:
                         return jsonify({
                             "status": "yes",
@@ -341,6 +363,8 @@ class UsuarioController(Resource):
 
             if alreadyPis['key']:
                 if alreadyPis['key'] == 'pis':
+                    print("entrou pis")
+
                     if alreadyPis['value'] is not None:
                         return jsonify({
                             "status": "yes",
