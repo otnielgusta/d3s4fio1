@@ -27,4 +27,19 @@ class UsuarioLoginModel():
             self.tipo= 'pis'            
             self.login = str(request['pis'])
 
-        self.senha = str(request['senha'])      
+        self.senha = str(request['senha'])   
+
+    def getRequestLoginAlready(self, request):
+
+        if 'email' in request:  
+            self.tipo = 'email'
+            self.login = str(request['email'])
+
+        elif 'cpf' in request:
+            self.tipo = 'cpf'
+            self.login = str(request['cpf'])
+
+        elif 'pis' in request:
+            self.tipo= 'pis'            
+            self.login = str(request['pis'])
+

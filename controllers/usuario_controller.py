@@ -1,9 +1,10 @@
+from copyreg import constructor
 import json
 from lib2to3.pgen2 import token
 import os
 from unittest import result
 from urllib import response
-from flask import jsonify, request
+from flask import Response, jsonify, request
 from flask_restx import Resource
 from controllers.endereco_controller import EnderecoController
 from models.user_login_model import UsuarioLoginModel
@@ -96,9 +97,7 @@ class UsuarioController(Resource):
             enderecoController = EnderecoController()
             data = json.loads(request.data)
             user.fromJson(data=data)
-
             user.id = id
-
             idEndereco = self.getIdEnderecoByIdUsuario(id)
             if idEndereco['idEndereco']:
                 responseEndereco = enderecoController.update(idEndereco=idEndereco['idEndereco'],user=user)
@@ -227,9 +226,7 @@ class UsuarioController(Resource):
         return jsonify(response['error']), int(response['status'])
     
     def getCurrentuser(self,id):
-        
-    
-    
+       
         user = UsuarioModel()
         cursor = mydb.cursor(dictionary=True)        
         query = ("select nome, email, cpf, pis, e.id as idEndereco, pais, estado, municipio, cep, rua, numero, complemento from usuario as u inner join endereco as e on u.idEndereco = e.id where u.id = %s")
@@ -252,9 +249,109 @@ class UsuarioController(Resource):
                 return jsonify(str(e)), 401
         return jsonify(), 401
 
+    def getAlreadyEmail(self, email):
+        cursor = mydb.cursor(dictionary=True)   
 
+        try:
+            query = ("select email from usuario where email = '%s'")
+            cursor.execute(query % (email))
+            result = cursor.fetchone()
+            print(result)
+            return {
+                "key":"email",
+                "value": result
+                }
+        except Exception as e:
+            return {
+                "key": "no",
+                "value": e
+            }
+        finally:
+            cursor.close()
 
+    def getAlreadyPis(self, pis):
+        cursor = mydb.cursor(dictionary=True)   
 
-     
+        try:
+            query = ("select pis from usuario where pis = '%s'")
+            cursor.execute(query % (pis))
+            result = cursor.fetchone()
+            print("pis")
+            return {
+                "key":"pis",
+                "value": result
+                }
+        except Exception as e:
+            return {
+                "key": "no",
+                "value": e
+            }
+        finally:
+            cursor.close()
+
+    def getUserAlreadyCpf(self, cpf):
+        cursor = mydb.cursor(dictionary=True)   
+
+        try:
+            query = ("select cpf from usuario where cpf = '%s'")
+            cursor.execute(query % (cpf))
+            result = cursor.fetchone()
+            print(result)
+            return {
+                "key":"cpf",
+                "value": result
+                }
+        except Exception as e:
+            return {
+                "key": "no",
+                "value": e
+            }
+        finally:
+            cursor.close()
+
+    def getUserAlready(self):
+        try:
+            user = UsuarioModel()
+            data = json.loads(request.data)
+            print(data)
+            print("antes")
+            user.fromJsonValidateAlready(data=data) 
+            alreadyEmail = self.getAlreadyEmail(email=user.email)
+            alreadyCpf = self.getUserAlreadyCpf(cpf=user.cpf)
+            alreadyPis = self.getAlreadyPis(pis=user.pis)
+            print(alreadyEmail)
+            print(alreadyCpf)
+            print(alreadyPis)
+
+            if alreadyEmail['key']:
+                if alreadyEmail['key'] == 'email':
+                    if alreadyEmail['value'] is not None:
+                        return jsonify({
+                            "status": "yes",
+                            "text": "Email já cadastrado!"
+                            }), 200
+            
+            if alreadyCpf['key']:
+                if alreadyCpf['key'] == 'cpf':
+                    if alreadyCpf['value'] is not None:
+                        return jsonify({
+                            "status": "yes",
+                            "text": "CPF já cadastrado!"
+                            }), 200
+
+            if alreadyPis['key']:
+                if alreadyPis['key'] == 'pis':
+                    if alreadyPis['value'] is not None:
+                        return jsonify({
+                            "status": "yes",
+                            "text": "PIS já cadastrado!"
+                            }), 200
+
+            if(alreadyEmail['value'] is None) and alreadyCpf['value'] is None and alreadyPis['value'] is None:
+                print("não tem")
+                return jsonify({"status": "no"}), 404
+        except Exception as e:
+            return jsonify({"error": e}), 401
+            
 
 usuarioController = UsuarioController()

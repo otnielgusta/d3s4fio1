@@ -13,6 +13,7 @@ class Routes():
         #server.app.add_url_rule('/home', 'home', usuarioController.getUser, methods=['GET'])
         server.app.add_url_rule('/auth/auth', 'auth', usuarioController.getAutheticate, methods=['GET'])
         server.app.add_url_rule('/user', 'user', usuarioController.getUser, methods=['GET'])
+        server.app.add_url_rule('/login/already', 'userAlready', usuarioController.getUserAlready, methods=['POST'])
 
 
 routes = Routes()

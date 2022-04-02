@@ -33,6 +33,12 @@ class UsuarioModel():
         self.pis = data['pis']
         self.endereco.fromJson(data)
 
+    def fromJsonValidateAlready(self, data):     
+
+        self.email = data['email']
+        self.cpf = data['cpf']
+        self.pis = data['pis']
+
     def toJson(self):
         return {
             'nome': self.nome,
