@@ -1,11 +1,7 @@
 from copyreg import constructor
 import json
-from lib2to3.pgen2 import token
 import os
-from unittest import result
-from urllib import response
-import MySQLdb
-from flask import Response, jsonify, request
+from flask import jsonify, request
 from flask_restx import Resource
 from mysqlx import InternalError
 from controllers.endereco_controller import EnderecoController
@@ -25,8 +21,11 @@ app = server.app
 load_dotenv(find_dotenv())
 
 class UsuarioController(Resource):
+
+    
     cryptContext = CryptContext(schemes=["bcrypt"])
     auth = Authenticate()
+
 
     def getSenhaCriptografada(self,password):
         print(password)
@@ -245,7 +244,6 @@ class UsuarioController(Resource):
             try:
                 query = ("delete from usuario where id = %s")
                 cursor.execute(query % (id))
-                result = cursor.fetchone()
                 return jsonify(), 200
             except Exception as e:
                 return jsonify(str(e)), 401

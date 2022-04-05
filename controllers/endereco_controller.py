@@ -1,6 +1,5 @@
 from flask_restx import Resource
 from models.endereco_model import EnderecoModel
-from flask import jsonify
 from models.usuario_model import UsuarioModel
 
 
