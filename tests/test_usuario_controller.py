@@ -117,9 +117,9 @@ def test_get_already_user(client):
     url = '/login/already'
 
     mock_data = {
-        "email": "teste@gmail.com",
-        "cpf": "78978967899",
-        "pis": "88888888888",
+        "email": "testSe@gmail.com",
+        "cpf": "78978967892349",
+        "pis": "888888838888",
     }
 
     response = client.post(url, data = json.dumps(mock_data), headers = getMockHeader())
