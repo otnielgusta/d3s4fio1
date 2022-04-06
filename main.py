@@ -4,4 +4,4 @@ from routes import routes
 
 
 routes.setRoutes()
-server.app.run(host='0.0.0.0', port=8000)
+server.app.run(host='0.0.0.0', port=5000)
