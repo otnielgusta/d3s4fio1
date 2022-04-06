@@ -250,6 +250,7 @@ class UsuarioController(Resource):
         return jsonify(), 401
 
     def getAlreadyEmail(self, email):
+        print(email)
         cursor = mydb.cursor(dictionary=True)   
 
         try:
