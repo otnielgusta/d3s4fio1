@@ -9,7 +9,7 @@ mydb = server.mydb
 
 class EnderecoController(Resource):
     def get(self, id):
-        conn = mydb.cursor()
+        conn = mydb.cursor(buffered=True)
         endereco = EnderecoModel()
         try:
             query = "select * from endereco where id = %s"
@@ -24,7 +24,7 @@ class EnderecoController(Resource):
 
     def update(self, user:UsuarioModel, idEndereco):
         try:
-            cursor = mydb.cursor()
+            cursor = mydb.cursor(buffered=True)
             query = "UPDATE endereco SET pais = '%s', estado = '%s', municipio = '%s', cep = '%s', rua = '%s', numero = '%s', complemento = '%s' where id = '%s'"
             parametros = (user.endereco.pais, user.endereco.estado, user.endereco.municipio, user.endereco.cep, user.endereco.rua, user.endereco.numero, user.endereco.complemento, idEndereco)
             cursor.execute(query % parametros)
@@ -36,7 +36,7 @@ class EnderecoController(Resource):
             cursor.close()
 
     def insert(self, endereco:EnderecoModel):
-        cursor = mydb.cursor(dictionary=True)
+        cursor = mydb.cursor(dictionary=True, buffered=True)
         try:
             lastId = ""
             query = "INSERT INTO endereco(pais, estado, municipio, cep, rua, numero, complemento) values('%s','%s','%s','%s','%s','%s','%s')"
