@@ -1,12 +1,8 @@
-from copyreg import constructor
 import json
 import os
-from MySQLdb import OperationalError
-import MySQLdb
+from MySQLdb import OperationalError, InterfaceError, InternalError
 from flask import jsonify, request
 from flask_restx import Resource
-from mysqlx import InternalError
-import mysqlx
 from controllers.endereco_controller import EnderecoController
 from models.user_login_model import UsuarioLoginModel
 from models.usuario_model import UsuarioModel
@@ -186,10 +182,10 @@ class UsuarioController(Resource):
             response.headers.add('Access-Control-Allow-Origin', '*')
 
             return response
-        except MySQLdb.OperationalError as e:
+        except OperationalError as e:
             return jsonify({"error": str(e)}), 405
 
-        except MySQLdb.InterfaceError as e:
+        except InterfaceError as e:
             return jsonify({"error": str(e)}), 405
 
         except Exception as error:
