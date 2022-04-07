@@ -177,12 +177,13 @@ class UsuarioController(Resource):
                 "user": userResponse
             })
             response.headers.add('Access-Control-Allow-Origin', '*')
-            cursor.close()
+
             return response
         except Exception as error:
-            cursor.close()
+
             return jsonify(str("A exception é: ",error)), 404
-        
+        finally:
+            cursor.close()
 
     def getAuthenticateAndId(self):
         tokenRequest = None
