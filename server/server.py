@@ -1,18 +1,21 @@
+import os
+import dotenv
 from flask import Flask
 from flask_restx import Api
 from mysql.connector import connection
 from dotenv import load_dotenv, find_dotenv
 from flask_cors import CORS
 
+load_dotenv(find_dotenv())
 
 
 class Server():
 
     mydb = connection.MySQLConnection(
-        host= "$HOST",
-        user="$USER",
-        password="$PASSWORD",
-        database= "$DATABASE",
+        host= os.getenv("HOST"),
+        user= os.getenv("USER"),
+        password=os.getenv("PASSWORD"),
+        database= os.getenv("DATABASE"),
         connection_timeout=60,
     )
     
