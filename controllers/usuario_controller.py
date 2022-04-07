@@ -18,7 +18,7 @@ import datetime
 import jwt
 
 mydb = server.mydb
-cx = server.cx
+cx = server.cursor
 api = server.api
 app = server.app
 
