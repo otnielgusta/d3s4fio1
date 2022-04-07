@@ -186,7 +186,7 @@ class UsuarioController(Resource):
 
             return response
         except MySQLdb.OperationalError as e:
-            return jsonify({"error": error}), 404
+            return jsonify({"error": error}), 405
         except Exception as error:
 
 
