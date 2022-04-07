@@ -148,9 +148,8 @@ class UsuarioController(Resource):
     def login(self):
         user = UsuarioLoginModel()
         user.getRequestData(data=request.data)     
-
-        cursor = mydb.cursor(dictionary=True)    
         try:                      
+            cursor = mydb.cursor(dictionary=True)    
             query = ("select id, cpf, senha from usuario where %s = '%s'")
             parametros = (user.tipo, user.login)  
             cursor.execute(query % parametros )
