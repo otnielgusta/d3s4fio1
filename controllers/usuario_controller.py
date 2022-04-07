@@ -158,7 +158,7 @@ class UsuarioController(Resource):
 
             parametros = (user.tipo, user.login)  
             cx.execute(query % parametros )
-            result = cursor.fetchone()
+            result = cx.fetchone()
 
             if result is not None: 
                 if not self.verifyPassword(user.senha, result['senha']):
@@ -236,7 +236,7 @@ class UsuarioController(Resource):
         user = UsuarioModel()
         query = ("select nome, email, cpf, pis, e.id as idEndereco, pais, estado, municipio, cep, rua, numero, complemento from usuario as u inner join endereco as e on u.idEndereco = e.id where u.id = %s")
         cx.execute(query % (id))
-        result = cursor.fetchone()
+        result = cx.fetchone()
         user.fromBd(result)
         return user.toJson()
     
