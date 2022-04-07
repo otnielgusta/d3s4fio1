@@ -192,6 +192,7 @@ class UsuarioController(Resource):
             return jsonify({"error": str(error)}), 405
         finally:
             cursor.close()
+            
 
     def getAuthenticateAndId(self):
         tokenRequest = None
