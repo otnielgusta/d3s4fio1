@@ -26,6 +26,7 @@ class Server():
             "origins": "*"
         }
     })
+    
     api = Api(app)
     
     if __name__ == "__main__":
