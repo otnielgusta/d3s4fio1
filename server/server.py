@@ -16,7 +16,7 @@ class Server():
         user= os.getenv("USER"),
         password=os.getenv("PASSWORD"),
         database= os.getenv("DATABASE"),
-        connection_timeout=60
+        connection_timeout=60,
     )
     
     app = Flask(__name__)
