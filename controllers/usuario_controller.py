@@ -149,7 +149,7 @@ class UsuarioController(Resource):
         user = UsuarioLoginModel()
         user.getRequestData(data=request.data)     
         print("antes do cursor")
-        cursor = mydb.cursor( buffered=True)    
+        cursor = mydb.cursor(buffered=True)    
         print("depois do cursor")
         try:                    
             print("começo try")
@@ -163,13 +163,12 @@ class UsuarioController(Resource):
             print("depois execute")
             result = cursor.fetchone()
             print("depois fetch")
-            print(result)
 
             if result is not None: 
-                if not self.verifyPassword(user.senha, result['senha']):
+                if not self.verifyPassword(user.senha, result[2]):
                     return jsonify({ "error": "Suas credenciais estão incorretas"}), 401     
                 
-                user.id = result['id']    
+                user.id = result[0]    
                                    
             else:
                 return jsonify({"error":"Usuário não encontrado"}), 403
@@ -188,7 +187,7 @@ class UsuarioController(Resource):
             })
             response.headers.add('Access-Control-Allow-Origin', '*')
 
-            return response or ""
+            return response
         except Exception as error:
 
             return jsonify(str("A exception é: ",error)), 404
