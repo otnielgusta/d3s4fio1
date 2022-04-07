@@ -18,7 +18,6 @@ import datetime
 import jwt
 
 mydb = server.mydb
-cx = server.cursor
 api = server.api
 app = server.app
 
@@ -39,6 +38,7 @@ class UsuarioController(Resource):
         return self.cryptContext.verify(passwordFromFront, passwordFromDb)
 
     def register(self):
+        cursor = mydb.cursor(buffered=True)
         try:
             user = UsuarioModel()
             enderecoController = EnderecoController()
@@ -52,7 +52,7 @@ class UsuarioController(Resource):
                 print(lastId)
                 query = "INSERT INTO USUARIO(nome, email, idEndereco, cpf, pis, senha) values('%s','%s',%s,'%s',%s,'%s')"
                 parametros = (user.nome, user.email, lastId['last_insert_id()'], user.cpf, user.pis, user.senha)
-                cx.execute(query %parametros)
+                cursor.execute(query %parametros)
                 print("entrou exerc")
                 mydb.commit()
                 return jsonify({"status": 200}), 200
@@ -63,7 +63,8 @@ class UsuarioController(Resource):
             print(e)
             return jsonify(str(e))
 
-      
+        finally:
+            cursor.close()
 
     def authUpdateUser(self):
         tokenRequest = None
@@ -82,15 +83,17 @@ class UsuarioController(Resource):
         return jsonify(response['error']), int(response['status'])
 
     def getIdEnderecoByIdUsuario(self, id):
+        cursor = mydb.cursor(dictionary=True,buffered=True)   
 
         try:
             query = ("select idEndereco from usuario where id = %s")
-            cx.execute(query % (id))
-            result = cx.fetchone()
+            cursor.execute(query % (id))
+            result = cursor.fetchone()
             return result
         except Exception as e:
             return jsonify(str(e))
-        
+        finally:
+            cursor.close()
     
     def updateUser(self, id):
         try:
@@ -121,34 +124,42 @@ class UsuarioController(Resource):
 
     def updateWithPassword(self, user:UsuarioModel):
         try:                
+            cursor = mydb.cursor(buffered=True)
             query = "UPDATE USUARIO SET nome = '%s', email = '%s', cpf = '%s', pis = '%s', senha = '%s' where id = '%s'"
             parametros = (user.nome, user.email, user.cpf, user.pis, user.senha, user.id)
-            cx.execute(query % parametros)
+            cursor.execute(query % parametros)
             mydb.commit()
             return jsonify({"status": 200}), 200
         except Exception as e:
             return jsonify(str(e)), 401
-       
+        finally:
+            cursor.close()
 
     def updateWithoutPassword(self, user:UsuarioModel):
         try:                
+            cursor = mydb.cursor(buffered=True)
             query = "UPDATE USUARIO SET nome = '%s', email = '%s', cpf = '%s', pis = '%s' where id = '%s'"
             parametros = (user.nome, user.email, user.cpf, user.pis, user.id)
-            cx.execute(query % parametros)
+            cursor.execute(query % parametros)
             mydb.commit()
             return jsonify({"status": 200}), 200
         except Exception as e:
             return jsonify(str(e)), 401
+        finally:
+            cursor.close()
+
  
     def login(self):
         user = UsuarioLoginModel()
-        user.getRequestData(data=request.data)     
+        user.getRequestData(data=request.data)    
+        cursor = mydb.cursor(dictionary=True, buffered=True)
+
         try:                    
 
             query = ("select id, cpf, senha from usuario where %s = '%s'")
 
             parametros = (user.tipo, user.login)  
-            cx.execute(query % parametros )
+            cursor.execute(query % parametros )
             result = cx.fetchone()
 
             if result is not None: 
@@ -176,18 +187,15 @@ class UsuarioController(Resource):
 
             return response
         except MySQLdb.OperationalError as e:
-            print(str(e))
-
             return jsonify({"error": str(e)}), 405
 
         except MySQLdb.InterfaceError as e:
-            print(str(e))
-
             return jsonify({"error": str(e)}), 405
 
         except Exception as error:
-            print(str(error))
             return jsonify({"error": str(error)}), 405
+        finally:
+            cursor.close()
 
     def getAuthenticateAndId(self):
         tokenRequest = None
@@ -230,21 +238,28 @@ class UsuarioController(Resource):
         return jsonify(response['error']), int(response['status'])
     
     def getCurrentuser(self,id):
-       
-        user = UsuarioModel()
-        query = ("select nome, email, cpf, pis, e.id as idEndereco, pais, estado, municipio, cep, rua, numero, complemento from usuario as u inner join endereco as e on u.idEndereco = e.id where u.id = %s")
-        cx.execute(query % (id))
-        result = cx.fetchone()
-        user.fromBd(result)
-        return user.toJson()
+        cursor = mydb.cursor(dictionary=True, buffered=True)
+        try:
+            user = UsuarioModel()
+            query = ("select nome, email, cpf, pis, e.id as idEndereco, pais, estado, municipio, cep, rua, numero, complemento from usuario as u inner join endereco as e on u.idEndereco = e.id where u.id = %s")
+            cx.execute(query % (id))
+            result = cx.fetchone()
+            user.fromBd(result)
+            return user.toJson()
+        except Exception as e:
+            return jsonify(str(e))
+        finally:
+            cursor.close()
+
     
     def deleteUser(self):
         response = self.getAuthenticateAndId()
         if response['status'] == "200":
             id = response['id']                      
+            cursor = mydb.cursor(dictionary=True, buffered=True)        
             try:
                 query = ("delete from usuario where id = %s")
-                cx.execute(query % (id))
+                cursor.execute(query % (id))
                 return jsonify(), 200
             except Exception as e:
                 return jsonify(str(e)), 401
@@ -252,11 +267,12 @@ class UsuarioController(Resource):
 
     def getAlreadyEmail(self, email):
         print(email)
+        cursor = mydb.cursor(dictionary=True, buffered=True)   
 
         try:
             query = ("select email from usuario where email = '%s'")
-            cx.execute(query % (email))
-            result = cx.fetchone()
+            cursor.execute(query % (email))
+            result = cursor.fetchone()
             print(result)
             return {
                 "key":"email",
@@ -273,13 +289,16 @@ class UsuarioController(Resource):
                 "key": "no",
                 "value": e
             }
+        finally:
+            cursor.close()
 
     def getAlreadyPis(self, pis):
+        cursor = mydb.cursor(dictionary=True, buffered=True)   
 
         try:
             query = ("select pis from usuario where pis = '%s'")
-            cx.execute(query % (pis))
-            result = cx.fetchone()
+            cursor.execute(query % (pis))
+            result = cursor.fetchone()
             print("pis")
             return {
                 "key":"pis",
@@ -295,13 +314,16 @@ class UsuarioController(Resource):
                 "key": "no",
                 "value": e
             }
+        finally:
+            cursor.close()
 
     def getUserAlreadyCpf(self, cpf):
+        cursor = mydb.cursor(dictionary=True, buffered=True)   
 
         try:
             query = ("select cpf from usuario where cpf = '%s'")
-            cx.execute(query % (cpf))
-            result = cx.fetchone()
+            cursor.execute(query % (cpf))
+            result = cursor.fetchone()
             print(result)
             return {
                 "key":"cpf",
@@ -318,6 +340,8 @@ class UsuarioController(Resource):
                 "key": "no",
                 "value": e
             }
+        finally:
+            cursor.close()
 
     def getUserAlready(self):
         try:
