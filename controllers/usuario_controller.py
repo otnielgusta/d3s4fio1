@@ -148,8 +148,8 @@ class UsuarioController(Resource):
     def login(self):
         user = UsuarioLoginModel()
         user.getRequestData(data=request.data)     
-        cursor = mydb.cursor(dictionary=True)    
         try:                      
+            cursor = mydb.cursor(dictionary=True)    
             query = ("select id, cpf, senha from usuario where %s = '%s'")
             parametros = (user.tipo, user.login)  
             cursor.execute(query % parametros )
@@ -177,13 +177,12 @@ class UsuarioController(Resource):
                 "user": userResponse
             })
             response.headers.add('Access-Control-Allow-Origin', '*')
-
+            cursor.close()
             return response
         except Exception as error:
-
-            return jsonify(str("A exception é: ",error)), 404
-        finally:
             cursor.close()
+            return jsonify(str("A exception é: ",error)), 404
+        
 
     def getAuthenticateAndId(self):
         tokenRequest = None
