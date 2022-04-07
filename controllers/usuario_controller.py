@@ -148,13 +148,21 @@ class UsuarioController(Resource):
     def login(self):
         user = UsuarioLoginModel()
         user.getRequestData(data=request.data)     
-        cursor = mydb.cursor(buffered=True)    
+        print("antes do cursor")
+        cursor = mydb.cursor( buffered=True)    
+        print("depois do cursor")
         try:                    
+            print("começo try")
 
             query = ("select id, cpf, senha from usuario where %s = '%s'")
+            print("depois query")
+
             parametros = (user.tipo, user.login)  
+            print("depois parametros")
             cursor.execute(query % parametros )
+            print("depois execute")
             result = cursor.fetchone()
+            print("depois fetch")
 
             if result is not None: 
                 if not self.verifyPassword(user.senha, result['senha']):
