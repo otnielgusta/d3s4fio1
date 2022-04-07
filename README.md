@@ -4,6 +4,8 @@ Back-end desenvolvido em python utilizando a biblioteca Flask para fazer API.
 
 Foi utilizado Venv para virtualizar o projeto juntamente com Docker.
 
+Foi utilizado tambem autenticação com Token JWT, onde o token era criado no back-end e armazenado em cookie no front-end. Em cada requisição do usuário, o token é validado e o usuário só consegue navegar para a pagina desejada se estiver logado.
+
 O servidor de back end está hospedado no heroku no seguinte host: https://desafio-backend-and-bd.herokuapp.com/
 
 ## Aqui está um vídeo que fiz utilizando o sistema: https://www.youtube.com/watch?v=tvNomTL-hlI
