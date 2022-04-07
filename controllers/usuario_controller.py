@@ -2,6 +2,7 @@ from copyreg import constructor
 import json
 import os
 from MySQLdb import OperationalError
+import MySQLdb
 from flask import jsonify, request
 from flask_restx import Resource
 from mysqlx import InternalError
@@ -184,7 +185,7 @@ class UsuarioController(Resource):
             response.headers.add('Access-Control-Allow-Origin', '*')
 
             return response
-        except OperationalError as e:
+        except MySQLdb.OperationalError as e:
             return jsonify({"error": error}), 404
         except Exception as error:
 
