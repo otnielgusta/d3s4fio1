@@ -17,7 +17,7 @@ import datetime
 import jwt
 
 mydb = server.mydb
-cursor = server.cursor
+cx = server.cursor
 api = server.api
 app = server.app
 
@@ -157,14 +157,14 @@ class UsuarioController(Resource):
             query = ("select id, cpf, senha from usuario where %s = '%s'")
 
             parametros = (user.tipo, user.login)  
-            cursor.execute(query % parametros )
+            cx.execute(query % parametros )
             result = cursor.fetchone()
 
             if result is not None: 
-                if not self.verifyPassword(user.senha, result[2]):
+                if not self.verifyPassword(user.senha, result['senha']):
                     return jsonify({ "error": "Suas credenciais estão incorretas"}), 401     
                 
-                user.id = result[0]    
+                user.id = result['id']    
                                    
             else:
                 return jsonify({"error":"Usuário não encontrado"}), 403
@@ -234,9 +234,8 @@ class UsuarioController(Resource):
     def getCurrentuser(self,id):
        
         user = UsuarioModel()
-        cursor = mydb.cursor(dictionary=True, buffered=True)        
         query = ("select nome, email, cpf, pis, e.id as idEndereco, pais, estado, municipio, cep, rua, numero, complemento from usuario as u inner join endereco as e on u.idEndereco = e.id where u.id = %s")
-        cursor.execute(query % (id))
+        cx.execute(query % (id))
         result = cursor.fetchone()
         user.fromBd(result)
         return user.toJson()
