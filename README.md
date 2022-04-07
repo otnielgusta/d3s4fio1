@@ -16,4 +16,4 @@ Para conectar ao banco, é necessário rodar o script em alguma ferramenta de ma
 Para criar a imagem do projeto, é necessário rodar o comando "docker build -t desafio1_backend ."
 E para criar o container, é necessário rodar o comando "docker run -d -p 5000:5000 desafio1_backend"
 
-
+As informações sobre o front end estão no repositóri do mesmo.
