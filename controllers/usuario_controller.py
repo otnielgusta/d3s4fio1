@@ -35,7 +35,7 @@ class UsuarioController(Resource):
         return self.cryptContext.verify(passwordFromFront, passwordFromDb)
 
     def register(self):
-        cursor = mydb.cursor()
+        cursor = mydb.cursor(buffered=True)
         try:
             user = UsuarioModel()
             enderecoController = EnderecoController()
@@ -80,7 +80,7 @@ class UsuarioController(Resource):
         return jsonify(response['error']), int(response['status'])
 
     def getIdEnderecoByIdUsuario(self, id):
-        cursor = mydb.cursor(dictionary=True)   
+        cursor = mydb.cursor(dictionary=True,buffered=True)   
 
         try:
             query = ("select idEndereco from usuario where id = %s")
@@ -121,7 +121,7 @@ class UsuarioController(Resource):
 
     def updateWithPassword(self, user:UsuarioModel):
         try:                
-            cursor = mydb.cursor()
+            cursor = mydb.cursor(buffered=True)
             query = "UPDATE USUARIO SET nome = '%s', email = '%s', cpf = '%s', pis = '%s', senha = '%s' where id = '%s'"
             parametros = (user.nome, user.email, user.cpf, user.pis, user.senha, user.id)
             cursor.execute(query % parametros)
@@ -134,7 +134,7 @@ class UsuarioController(Resource):
 
     def updateWithoutPassword(self, user:UsuarioModel):
         try:                
-            cursor = mydb.cursor()
+            cursor = mydb.cursor(buffered=True)
             query = "UPDATE USUARIO SET nome = '%s', email = '%s', cpf = '%s', pis = '%s' where id = '%s'"
             parametros = (user.nome, user.email, user.cpf, user.pis, user.id)
             cursor.execute(query % parametros)
@@ -237,7 +237,7 @@ class UsuarioController(Resource):
     def getCurrentuser(self,id):
        
         user = UsuarioModel()
-        cursor = mydb.cursor(dictionary=True)        
+        cursor = mydb.cursor(dictionary=True, buffered=True)        
         query = ("select nome, email, cpf, pis, e.id as idEndereco, pais, estado, municipio, cep, rua, numero, complemento from usuario as u inner join endereco as e on u.idEndereco = e.id where u.id = %s")
         cursor.execute(query % (id))
         result = cursor.fetchone()
@@ -248,7 +248,7 @@ class UsuarioController(Resource):
         response = self.getAuthenticateAndId()
         if response['status'] == "200":
             id = response['id']                      
-            cursor = mydb.cursor(dictionary=True)        
+            cursor = mydb.cursor(dictionary=True, buffered=True)        
             try:
                 query = ("delete from usuario where id = %s")
                 cursor.execute(query % (id))
@@ -259,7 +259,7 @@ class UsuarioController(Resource):
 
     def getAlreadyEmail(self, email):
         print(email)
-        cursor = mydb.cursor(dictionary=True)   
+        cursor = mydb.cursor(dictionary=True, buffered=True)   
 
         try:
             query = ("select email from usuario where email = '%s'")
