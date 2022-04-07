@@ -6,6 +6,8 @@ Foi utilizado Venv para virtualizar o projeto juntamente com Docker.
 
 O servidor de back end está hospedado no heroku no seguinte host: https://desafio-backend-and-bd.herokuapp.com/
 
+## Aqui está um vídeo que fiz utilizando o sistema: https://www.youtube.com/watch?v=tvNomTL-hlI
+
 ### O servidor back end em alguns momentos está apresentando um erro com o conector do MySQL que infelizmente eu não consegui ajeitar antes do prazo. Este problema é resolvido ao reiniciar o servidor.
 
 O banco de dados utilizado foi o MySQL e o arquivo do banco está na raiz deste repositório com o nome "db.sql".
