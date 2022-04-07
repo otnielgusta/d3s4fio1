@@ -163,6 +163,7 @@ class UsuarioController(Resource):
             print("depois execute")
             result = cursor.fetchone()
             print("depois fetch")
+            print(result)
 
             if result is not None: 
                 if not self.verifyPassword(user.senha, result['senha']):
