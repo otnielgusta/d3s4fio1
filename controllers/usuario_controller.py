@@ -27,7 +27,6 @@ class UsuarioController(Resource):
 
 
     def getSenhaCriptografada(self,password):
-        print(password)
         return self.cryptContext.hash(password)
 
     def verifyPassword(self,passwordFromFront, passwordFromDb):
@@ -45,18 +44,15 @@ class UsuarioController(Resource):
             
             lastId =  enderecoController.insert(user.endereco)
             if lastId != "":
-                print(lastId)
                 query = "INSERT INTO USUARIO(nome, email, idEndereco, cpf, pis, senha) values('%s','%s',%s,'%s',%s,'%s')"
                 parametros = (user.nome, user.email, lastId['last_insert_id()'], user.cpf, user.pis, user.senha)
                 cursor.execute(query %parametros)
-                print("entrou exerc")
                 mydb.commit()
                 return jsonify({"status": 200}), 200
             else:
                 return Exception
         
         except Exception as e:
-            print(e)
             return jsonify(str(e))
 
         finally:
@@ -263,14 +259,12 @@ class UsuarioController(Resource):
         return jsonify(), 401
 
     def getAlreadyEmail(self, email):
-        print(email)
         cursor = mydb.cursor(dictionary=True, buffered=True)   
 
         try:
             query = ("select email from usuario where email = '%s'")
             cursor.execute(query % (email))
             result = cursor.fetchone()
-            print(result)
             return {
                 "key":"email",
                 "value": result
@@ -296,7 +290,6 @@ class UsuarioController(Resource):
             query = ("select pis from usuario where pis = '%s'")
             cursor.execute(query % (pis))
             result = cursor.fetchone()
-            print("pis")
             return {
                 "key":"pis",
                 "value": result
@@ -321,13 +314,11 @@ class UsuarioController(Resource):
             query = ("select cpf from usuario where cpf = '%s'")
             cursor.execute(query % (cpf))
             result = cursor.fetchone()
-            print(result)
             return {
                 "key":"cpf",
                 "value": result
                 }
         except InternalError as e:
-            print(e.msg)
             return {
                 "key": "no",
                 "value": e
@@ -344,20 +335,14 @@ class UsuarioController(Resource):
         try:
             user = UsuarioModel()
             data = json.loads(request.data)
-            print(data)
-            print("antes")
             user.fromJsonValidateAlready(data=data) 
             alreadyEmail = self.getAlreadyEmail(email=user.email)
             alreadyCpf = self.getUserAlreadyCpf(cpf=user.cpf)
             alreadyPis = self.getAlreadyPis(pis=user.pis)
-            print(alreadyEmail)
-            print(alreadyCpf)
-            print(alreadyPis)
 
             if alreadyEmail['key']:
 
                 if alreadyEmail['key'] == 'email':
-                    print("entrou email")
                     if alreadyEmail['value'] is not None:
                         return jsonify({
                             "status": "yes",
@@ -366,7 +351,6 @@ class UsuarioController(Resource):
             
             if alreadyCpf['key']:
                 if alreadyCpf['key'] == 'cpf':
-                    print("entrou cpf") 
                     if alreadyCpf['value'] is not None:
                         return jsonify({
                             "status": "yes",
@@ -375,7 +359,6 @@ class UsuarioController(Resource):
 
             if alreadyPis['key']:
                 if alreadyPis['key'] == 'pis':
-                    print("entrou pis")
 
                     if alreadyPis['value'] is not None:
                         return jsonify({
@@ -384,7 +367,6 @@ class UsuarioController(Resource):
                             }), 200
 
             if(alreadyEmail['value'] is None) and alreadyCpf['value'] is None and alreadyPis['value'] is None:
-                print("não tem")
                 return jsonify({"status": "no"}), 404
         except Exception as e:
             return jsonify({"error": e}), 401
