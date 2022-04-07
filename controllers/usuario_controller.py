@@ -186,15 +186,13 @@ class UsuarioController(Resource):
 
             return response
         except MySQLdb.OperationalError as e:
-            return jsonify({"error": e}), 405
+            return jsonify({"error": str(e)}), 405
 
         except MySQLdb.InterfaceError as e:
-            return jsonify({"error": e}), 405
+            return jsonify({"error": str(e)}), 405
 
         except Exception as error:
-
-
-            return jsonify({"error": error}), 404
+            return jsonify({"error": str(error)}), 404
 
     def getAuthenticateAndId(self):
         tokenRequest = None
