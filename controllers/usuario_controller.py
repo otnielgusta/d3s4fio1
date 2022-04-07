@@ -38,7 +38,7 @@ class UsuarioController(Resource):
         return self.cryptContext.verify(passwordFromFront, passwordFromDb)
 
     def register(self):
-        cursor = mydb.cursor(buffered=True)
+        cursor = mydb.cursor(dictionary=True, buffered=True)
         try:
             user = UsuarioModel()
             enderecoController = EnderecoController()
@@ -160,7 +160,7 @@ class UsuarioController(Resource):
 
             parametros = (user.tipo, user.login)  
             cursor.execute(query % parametros )
-            result = cx.fetchone()
+            result = cursor.fetchone()
 
             if result is not None: 
                 if not self.verifyPassword(user.senha, result['senha']):
@@ -242,8 +242,8 @@ class UsuarioController(Resource):
         try:
             user = UsuarioModel()
             query = ("select nome, email, cpf, pis, e.id as idEndereco, pais, estado, municipio, cep, rua, numero, complemento from usuario as u inner join endereco as e on u.idEndereco = e.id where u.id = %s")
-            cx.execute(query % (id))
-            result = cx.fetchone()
+            cursor.execute(query % (id))
+            result = cursor.fetchone()
             user.fromBd(result)
             return user.toJson()
         except Exception as e:
