@@ -19,6 +19,8 @@ class Server():
         connection_timeout=60,
     )
     
+    cursor = mydb.cursor()
+    
     app = Flask(__name__)
     CORS(app)
     cors = CORS(app, resources={

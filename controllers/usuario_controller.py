@@ -17,6 +17,7 @@ import datetime
 import jwt
 
 mydb = server.mydb
+cursor = server.cursor
 api = server.api
 app = server.app
 
@@ -151,7 +152,6 @@ class UsuarioController(Resource):
     def login(self):
         user = UsuarioLoginModel()
         user.getRequestData(data=request.data)     
-        cursor = mydb.cursor(buffered=True) or mydb.reconnect()   
         try:                    
 
             query = ("select id, cpf, senha from usuario where %s = '%s'")
@@ -190,8 +190,6 @@ class UsuarioController(Resource):
 
 
             return jsonify({"error": error}), 404
-        finally:
-            cursor.close()
 
     def getAuthenticateAndId(self):
         tokenRequest = None
