@@ -192,7 +192,7 @@ class UsuarioController(Resource):
             return jsonify({"error": str(e)}), 405
 
         except Exception as error:
-            return jsonify({"error": str(error)}), 404
+            return jsonify({"error": str(error)}), 405
 
     def getAuthenticateAndId(self):
         tokenRequest = None
