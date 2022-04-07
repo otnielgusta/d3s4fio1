@@ -1,9 +1,11 @@
 from copyreg import constructor
 import json
 import os
+from MySQLdb import OperationalError
 from flask import jsonify, request
 from flask_restx import Resource
 from mysqlx import InternalError
+import mysqlx
 from controllers.endereco_controller import EnderecoController
 from models.user_login_model import UsuarioLoginModel
 from models.usuario_model import UsuarioModel
@@ -145,24 +147,18 @@ class UsuarioController(Resource):
         finally:
             cursor.close()
 
+ 
     def login(self):
         user = UsuarioLoginModel()
         user.getRequestData(data=request.data)     
-        print("antes do cursor")
-        cursor = mydb.cursor(buffered=True)    
-        print("depois do cursor")
+        cursor = mydb.cursor(buffered=True) or mydb.reconnect()   
         try:                    
-            print("começo try")
 
             query = ("select id, cpf, senha from usuario where %s = '%s'")
-            print("depois query")
 
             parametros = (user.tipo, user.login)  
-            print("depois parametros")
             cursor.execute(query % parametros )
-            print("depois execute")
             result = cursor.fetchone()
-            print("depois fetch")
 
             if result is not None: 
                 if not self.verifyPassword(user.senha, result[2]):
@@ -188,9 +184,12 @@ class UsuarioController(Resource):
             response.headers.add('Access-Control-Allow-Origin', '*')
 
             return response
+        except OperationalError as e:
+            return jsonify({"error": error}), 404
         except Exception as error:
 
-            return jsonify(str("A exception é: ",error)), 404
+
+            return jsonify({"error": error}), 404
         finally:
             cursor.close()
 
